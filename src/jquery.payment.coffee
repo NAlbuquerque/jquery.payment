@@ -7,6 +7,7 @@ $.fn.payment = (method, args...) ->
 # Utils
 
 defaultFormat = /(\d{1,4})/g
+cardNumberSeparator = ' '
 
 $.payment.cards = cards = [
   # Elo has a lot of bins scattered throughout bin-space. Some are one-off, and
@@ -247,7 +248,7 @@ reFormatCardNumber = (e) ->
   setTimeout ->
     value   = $target.val()
     value   = replaceFullWidthChars(value)
-    value   = $.payment.formatCardNumber(value)
+    value   = $.payment.formatCardNumber(value, cardNumberSeparator)
     safeVal(value, $target)
 
 formatCardNumber = (e) ->
@@ -277,12 +278,12 @@ formatCardNumber = (e) ->
   # If '4242' + 4
   if re.test(value)
     e.preventDefault()
-    setTimeout -> $target.val(value + ' ' + digit)
+    setTimeout -> $target.val(value + cardNumberSeparator + digit)
 
   # If '424' + 2
   else if re.test(value + digit)
     e.preventDefault()
-    setTimeout -> $target.val(value + digit + ' ')
+    setTimeout -> $target.val(value + digit + cardNumberSeparator)
 
 formatBackCardNumber = (e) ->
   $target = $(e.currentTarget)
@@ -481,7 +482,12 @@ $.payment.fn.formatCardExpiry = ->
   @on('input', reFormatExpiry)
   this
 
-$.payment.fn.formatCardNumber = ->
+$.payment.fn.formatCardNumber = (args) ->
+  if args && args.hasOwnProperty('cardNumberSeparator')
+    {cardNumberSeparator} = args
+  else
+    cardNumberSeparator = ' '
+
   @on('keypress', restrictNumeric)
   @on('keypress', restrictCardNumber)
   @on('keypress', formatCardNumber)
@@ -492,6 +498,7 @@ $.payment.fn.formatCardNumber = ->
   @on('input', reFormatCardNumber)
   @on('input', setCardType)
   this
+
 
 # Restrictions
 
@@ -582,7 +589,7 @@ $.payment.cardType = (num) ->
   return null unless num
   cardFromNumber(num)?.type or null
 
-$.payment.formatCardNumber = (num) ->
+$.payment.formatCardNumber = (num, separator = ' ') ->
   num = num.replace(/\D/g, '')
   card = cardFromNumber(num)
   return num unless card
@@ -591,13 +598,13 @@ $.payment.formatCardNumber = (num) ->
   num = num[0...upperLength]
 
   if card.format.global
-    num.match(card.format)?.join(' ')
+    num.match(card.format)?.join(separator)
   else
     groups = card.format.exec(num)
     return unless groups?
     groups.shift()
     groups = $.grep(groups, (n) -> n) # Filter empty groups
-    groups.join(' ')
+    groups.join(separator)
 
 $.payment.formatExpiry = (expiry) ->
   parts = expiry.match(/^\D*(\d{1,2})(\D+)?(\d{1,4})?/)

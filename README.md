@@ -50,7 +50,7 @@ Supported card types are:
 
 ## API
 
-### $.fn.payment('formatCardNumber')
+### $.fn.payment('formatCardNumber', options)
 
 Formats card numbers:
 
@@ -59,11 +59,19 @@ Formats card numbers:
 * Limits to 16 numbers
 * Supports American Express formatting
 * Adds a class of the card type (e.g. 'visa') to the input
+* Change the number separator character with an optional argument {cardNumberSeparator: '-'}
+
 
 Example:
 
 ``` javascript
 $('input.cc-num').payment('formatCardNumber');
+```
+
+Example (with a dash as separator):
+
+``` javascript
+$('input.cc-num').payment('formatCardNumber', {cardNumberSeparator: '-'});
 ```
 
 ### $.fn.payment('formatCardExpiry')

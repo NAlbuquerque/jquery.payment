@@ -315,7 +315,17 @@ describe 'jquery.payment', ->
       setTimeout ->
         assert.equal $number.val(), '4242 4'
         done()
+    it 'should format cc number correctly with dashes', (done) ->
+      $number = $('<input type=text>').payment('formatCardNumber', {cardNumberSeparator: '-'})
+      $number.val('4111').prop('selectionStart', 4)
 
+      e = $.Event('keypress')
+      e.which = 52 # '4'
+      $number.trigger(e)
+
+      setTimeout ->
+        assert.equal $number.val(), '4111-4'
+        done()
     it 'should format amex cc number correctly', (done) ->
       $number = $('<input type=text>').payment('formatCardNumber')
       $number.val('3782').prop('selectionStart', 4)
